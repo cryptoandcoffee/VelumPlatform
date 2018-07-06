@@ -1,0 +1,22 @@
+[Unit]
+Description=Velum's distributed currency daemon
+After=network.target
+
+[Service]
+User=velumcore
+Group=velumcore
+
+Type=forking
+PIDFile=/var/lib/velumd/velumd.pid
+ExecStart=/usr/bin/velumd -daemon -pid=/var/lib/velumd/velumd.pid \
+-conf=/etc/velumcore/velum.conf -datadir=/var/lib/velumd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/velumcore/.velumcore" ]; then
+	VELUMD_DEFAULT_DATADIR="/var/lib/velumcore/.velumcore"
+else
+	VELUMD_DEFAULT_DATADIR="/var/lib/velumd"
+fi
+
+VELUMD_CONFIGFILE=${VELUMD_CONFIGFILE:-/etc/velumcore/velum.conf}
+VELUMD_PIDDIR=${VELUMD_PIDDIR:-/var/run/velumd}
+VELUMD_PIDFILE=${VELUMD_PIDFILE:-${VELUMD_PIDDIR}/velumd.pid}
+VELUMD_DATADIR=${VELUMD_DATADIR:-${VELUMD_DEFAULT_DATADIR}}
+VELUMD_USER=${VELUMD_USER:-${VELUM_USER:-velumcore}}
+VELUMD_GROUP=${VELUMD_GROUP:-velumcore}
+VELUMD_BIN=${VELUMD_BIN:-/usr/bin/velumd}
+VELUMD_NICE=${VELUMD_NICE:-${NICELEVEL:-0}}
+VELUMD_OPTS="${VELUMD_OPTS:-${VELUM_OPTS}}"
+
+name="Velum Core Daemon"
+description="Velum cryptocurrency P2P network daemon"
+
+command="/usr/bin/velumd"
+command_args="-pid=\"${VELUMD_PIDFILE}\" \
+		-conf=\"${VELUMD_CONFIGFILE}\" \
+		-datadir=\"${VELUMD_DATADIR}\" \
+		-daemon \
+		${VELUMD_OPTS}"
+
+required_files="${VELUMD_CONFIGFILE}"
+start_stop_daemon_args="-u ${VELUMD_USER} \
+			-N ${VELUMD_NICE} -w 2000"
+pidfile="${VELUMD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${VELUMD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${VELUMD_USER}:${VELUMD_GROUP}" \
+	"${VELUMD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${VELUMD_USER}:${VELUMD_GROUP}" \
+	"${VELUMD_PIDDIR}"
+
+	checkpath -f \
+	-o ${VELUMD_USER}:${VELUMD_GROUP} \
+	-m 0660 \
+	${VELUMD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${VELUMD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run velumd."
+		eerror "The setting must appear in ${VELUMD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Velum Core Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

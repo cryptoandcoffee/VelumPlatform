@@ -1,0 +1,33 @@
+# /etc/conf.d/velumd: config file for /etc/init.d/velumd
+
+# Config file location
+#VELUMD_CONFIGFILE="/etc/velumcore/velum.conf"
+
+# What directory to write pidfile to?  (created and owned by $VELUMD_USER)
+#VELUMD_PIDDIR="/var/run/velumd"
+
+# What filename to give the pidfile
+#VELUMD_PIDFILE="${VELUMD_PIDDIR}/velumd.pid"
+
+# Where to write velumd data (be mindful that the blockchain is large)
+#VELUMD_DATADIR="/var/lib/velumd"
+
+# User and group to own velumd process
+#VELUMD_USER="velumcore"
+#VELUMD_GROUP="velumcore"
+
+# Path to velumd executable
+#VELUMD_BIN="/usr/bin/velumd"
+
+# Nice value to run velumd under
+#VELUMD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+VELUMD_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for velumd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+VELUMD_SIGTERM_TIMEOUT=60

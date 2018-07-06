@@ -1,0 +1,6 @@
+usr/local/bin/velum-qt usr/bin
+share/pixmaps/velum32.xpm usr/share/pixmaps
+share/pixmaps/velum16.xpm usr/share/pixmaps
+share/pixmaps/velum128.png usr/share/pixmaps
+debian/velum-qt.desktop usr/share/applications
+debian/velum-qt.protocol usr/share/kde4/services/

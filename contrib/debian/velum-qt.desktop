@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Velum
+Comment=Velum P2P Cryptocurrency
+Comment[fr]=Velum, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Velum, eşten eşe kriptografik sanal para birimi
+Exec=velum-qt %u
+Terminal=false
+Type=Application
+Icon=velum128
+MimeType=x-scheme-handler/velum;
+Categories=Office;Finance;
